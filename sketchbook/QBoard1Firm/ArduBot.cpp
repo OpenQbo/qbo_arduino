@@ -633,14 +633,22 @@ void ArduBot::spinOnce(){
   if(now-batteryTime>10000)
   {
     batteryTime+=10000;
+    byte stat=0;
+    byte value=0;
+    /*
     I2c.read(0x14,2);
     byte stat=I2c.receive();
     byte value=I2c.receive();
+    */
+    getBatteryLevel(&value, &stat);
     lcd.setCursor(2,0);
     lcd.print("                    ");
     lcd.setCursor(2,0);
     lcd.print("Bat: ");
     lcd.print(value,DEC);
+    //lcd.setCursor(2,10);
+    //lcd.print("Stat: ");
+    //lcd.print(stat,DEC);
   }
   
   //Test del LCD

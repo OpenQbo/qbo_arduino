@@ -210,13 +210,11 @@ namespace arduBot
       }
       //-------------------------------------------------------------//
       //--------Funcion para leer el nivel de la bateria-------------//
-      inline float getBatteryLevel()
+      inline void getBatteryLevel(byte *value, byte *stat)
       {
-        int analogValue=analogRead(BATTERY_LEVEL_INPUT_ARDUINO_PIN);
-        //float batteryLevel=((float)analogValue-117.5)/14.4+8.3;
-        float batteryLevel=(float)analogValue*0.02148;
-        return batteryLevel;
-        //return (float)analogValue;
+        I2c.read(0x14,2);
+        *stat=I2c.receive();
+        *value=I2c.receive();
       };
       //-------------------------------------------------------------//
       //---------------Funcion para leer los SRF10-------------------//
