@@ -551,11 +551,12 @@ void SerialProtocol::processCommands()
         else
         {
           //reservamos para 1 valor de retorno
-          command_.nOutputData=1;
+          command_.nOutputData=2;
           byte value=0;
           byte stat=0;
           robot->getBatteryLevel(&value, &stat);
           command_.outputData[0]=value;
+          command_.outputData[1]=stat;
         }
         //sin datos de entrada
         break;
