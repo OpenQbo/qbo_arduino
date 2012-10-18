@@ -201,14 +201,14 @@ void SerialProtocol::processCommands()
         }
         break;
       case SET_MOUTH_VALUE:
-        if(command_.nInputData!=4)
+        if(command_.nInputData!=3)
         {
           isInputCorrect_=false;
         }
         else
         {
           command_.nOutputData=0;
-          robot->setImage(command_.inputData[0],command_.inputData[1],command_.inputData[2],command_.inputData[3]);
+          robot->setImage(command_.inputData[0],command_.inputData[1],command_.inputData[2]);
         }
         break;
       case SET_STATE:

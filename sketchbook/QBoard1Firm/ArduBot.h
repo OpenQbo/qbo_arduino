@@ -215,6 +215,7 @@ namespace arduBot
         I2c.read(0x14,2);
         *stat=I2c.receive();
         *value=I2c.receive();
+        energyState=!I2c.returnStatusWire;
       };
       //-------------------------------------------------------------//
       //---------------Funcion para leer los SRF10-------------------//

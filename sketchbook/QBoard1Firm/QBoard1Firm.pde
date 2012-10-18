@@ -77,7 +77,7 @@ void loop()
   serialProtocol.processSerial();
   QBO.spinOnce();
   //QBO.setSpeeds(0.0, 2.0);
-//  QBO.setSpeeds(0.1, 0.0);
+  //QBO.setSpeeds(0.05, 0.0);
   //analogWrite(7,0);
   //analogWrite(8,0);
 }

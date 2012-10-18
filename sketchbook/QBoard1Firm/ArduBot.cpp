@@ -39,10 +39,10 @@
 #include "ArduBot.h"
 #include <avr/interrupt.h>
 
-#define WHEEL_STOP_ALERT
+//#define WHEEL_STOP_ALERT
 #define ROBOT_FALL_ALERT
 #define ROBOT_CRASH_ALERT
-//#define ROBOT_STALL_ALERT
+#define ROBOT_STALL_ALERT
 
 using namespace arduBot;
 //---------Definicion de las variables static----------------------//
@@ -311,15 +311,18 @@ void ArduBot::begin(double spinLoopPeriodS, double kp, double ki, double kd)
   I2c.send(37);                             // Send Command Byte
   I2c.endTransmission();
   
-  I2c.read(0x14,2);
-  byte stat=I2c.receive();
-  byte value=I2c.receive();
+  byte stat=0;
+  byte value=0;
   energyState=!I2c.returnStatusWire;
+  getBatteryLevel(&value,&stat);
   lcd.setCursor(2,0);
   lcd.print("                    ");
   lcd.setCursor(2,0);
   lcd.print("Bat: ");
   lcd.print(value,DEC);
+  lcd.setCursor(2,10);
+  lcd.print("Stat: ");
+  lcd.print(stat,DEC);
     
   oldPort=PINJ & ((1<<MOTOR_1_HALL_A_PIN) | (1<<MOTOR_1_HALL_B_PIN) | (1<<MOTOR_2_HALL_A_PIN) | (1<<MOTOR_2_HALL_B_PIN));
   leftMotorHallA=((oldPort&(1<<MOTOR_1_HALL_A_PIN))!=0);
@@ -347,7 +350,7 @@ void ArduBot::begin(double spinLoopPeriodS, double kp, double ki, double kd)
 
 
 long old_time=millis();
-long stopTime=2000;
+long stopTime=1000;
 long speedComandTime=0;
 void ArduBot::updatePosition()
 {
@@ -361,7 +364,8 @@ void ArduBot::updatePosition()
 #ifdef WHEEL_STOP_ALERT
   if (ArduBot::wheelStopAlertFlag)
   {
-    setSpeeds(0.0,0);
+    double linearSpeed=(ArduBot::par_motores.desiredLinearSpeed<0 ? ArduBot::par_motores.desiredLinearSpeed : 0);
+    setSpeeds(linearSpeed,ArduBot::par_motores.desiredAngularSpeed);
   }
 #endif
 #ifdef ROBOT_FALL_ALERT
@@ -424,6 +428,12 @@ void ArduBot::estimatePosition()
   //xCoordinateNoGyro+=xNoGyro;
   //yCoordinateNoGyro+=yNoGyro;
   //thetaCoordinateNoGyro+=odometryAngularMovement;
+  /*
+  lcd.setCursor(3,0);
+  lcd.print("                    ");
+  lcd.setCursor(3,0);
+  lcd.print(xCoordinate,DEC);
+  */
 };
 
 void ArduBot::setSpeeds(double linear_speed, double angular_speed)
@@ -646,9 +656,9 @@ void ArduBot::spinOnce(){
     lcd.setCursor(2,0);
     lcd.print("Bat: ");
     lcd.print(value,DEC);
-    //lcd.setCursor(2,10);
-    //lcd.print("Stat: ");
-    //lcd.print(stat,DEC);
+    lcd.setCursor(2,10);
+    lcd.print("Stat: ");
+    lcd.print(stat,DEC);
   }
   
   //Test del LCD

@@ -292,6 +292,9 @@ void SerialProtocol::processCommands()
         {
           //sin valor de retorno
           command_.nOutputData=0;
+          robot->setSpeeds(0.0, 0.0);
+          robot->par_motores.leftStallCount=0;
+          robot->par_motores.rightStallCount=0;
           robot->par_motores.leftStallDetected=false;
           robot->par_motores.rightStallDetected=false;
         }

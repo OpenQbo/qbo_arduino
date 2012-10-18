@@ -85,7 +85,7 @@ namespace arduBot
       }
       //-------------------------------------------------------------//
       void testMouth();
-      void setImage(byte b1, byte b2, byte b3, byte color);
+      void setImage(byte b1, byte b2, byte b3);
       inline void setState(byte stateColor)
       {
         noseColor=B00000111&stateColor;

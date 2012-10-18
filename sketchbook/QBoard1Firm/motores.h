@@ -157,7 +157,7 @@ namespace arduBot
           rightStallCount=0;
           leftStallDetected=false;
           rightStallDetected=false;
-          minStallDetectionTime=1;
+          minStallDetectionTime=1.5;
           minStallStopSecurityTime=5;
           
           integralLeftError=0;
@@ -166,7 +166,7 @@ namespace arduBot
           rightError=0;
           
           maxLinearAcceleration=1; //1m/ss
-          maxAngularAcceleration=1;
+          maxAngularAcceleration=3;
           
           if(encoderResolution==0)
           {
@@ -330,9 +330,11 @@ namespace arduBot
           //  stall--;
           //if(stall<(-(minStallStopSecurityTime/sampleTime)))
           //  stall=0;
-          if((referenceLeftWheelPulses!=0)&&(actualLeftWheelPulses==0))
+//          if((referenceLeftWheelPulses!=0)&&(actualLeftWheelPulses==0))
+          //if(abs(referenceLeftWheelPulses-actualLeftWheelPulses)>3)
+          if(abs(referenceLeftWheelPulses)>0.5 && abs(actualLeftWheelPulses/referenceLeftWheelPulses)<0.7)
           {
-            if(leftStallCount!=0xFF)
+            if(leftStallCount!=0xFFFF)
               leftStallCount++;
           }
           else
@@ -342,9 +344,10 @@ namespace arduBot
             else
               leftStallCount=0;
           }
-          if((referenceRightWheelPulses!=0)&&(actualRightWheelPulses==0))
+          //if((abs(referenceRightWheelPulses)>30)&&(actualRightWheelPulses==0))
+          if(abs(referenceRightWheelPulses)>0.5 && abs(actualRightWheelPulses/referenceRightWheelPulses)<0.7)
           {
-            if(rightStallCount!=0xFF)
+            if(rightStallCount!=0xFFFF)
               rightStallCount++;
           }
           else
@@ -354,6 +357,13 @@ namespace arduBot
             else
               rightStallCount=0;
           }
+          /*
+          Serial.print(referenceLeftWheelPulses,DEC);
+          Serial.print("    ");
+          Serial.print(abs(actualLeftWheelPulses/referenceLeftWheelPulses),DEC);
+          Serial.print("    ");
+          Serial.println(leftStallCount,DEC);
+          */
           if(leftStallCount>minStallDetectionTime/sampleTime)
             leftStallDetected=true;
           //else if(leftStallDetected&&leftStallCount==0)
