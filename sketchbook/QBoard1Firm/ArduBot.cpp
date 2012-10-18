@@ -319,8 +319,10 @@ void ArduBot::begin(double spinLoopPeriodS, double kp, double ki, double kd)
   lcd.print("                    ");
   lcd.setCursor(2,0);
   lcd.print("Bat: ");
-  lcd.print(value,DEC);
-  lcd.setCursor(2,10);
+  float batV=((float)value/10);
+  lcd.print(batV,1);
+  lcd.print("V");
+  lcd.setCursor(2,12);
   lcd.print("Stat: ");
   lcd.print(stat,DEC);
     
@@ -655,8 +657,10 @@ void ArduBot::spinOnce(){
     lcd.print("                    ");
     lcd.setCursor(2,0);
     lcd.print("Bat: ");
-    lcd.print(value,DEC);
-    lcd.setCursor(2,10);
+    float batV=((float)value/10);
+    lcd.print(batV,1);
+    lcd.print("V");
+    lcd.setCursor(2,12);
     lcd.print("Stat: ");
     lcd.print(stat,DEC);
   }
