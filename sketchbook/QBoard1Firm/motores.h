@@ -157,7 +157,7 @@ namespace arduBot
           rightStallCount=0;
           leftStallDetected=false;
           rightStallDetected=false;
-          minStallDetectionTime=1.5;
+          minStallDetectionTime=2.0;
           minStallStopSecurityTime=5;
           
           integralLeftError=0;
@@ -332,31 +332,47 @@ namespace arduBot
           //  stall=0;
 //          if((referenceLeftWheelPulses!=0)&&(actualLeftWheelPulses==0))
           //if(abs(referenceLeftWheelPulses-actualLeftWheelPulses)>3)
-          if(abs(referenceLeftWheelPulses)>0.5 && abs(actualLeftWheelPulses/referenceLeftWheelPulses)<0.7)
+          if(abs(referenceLeftWheelPulses)>0.5 && abs(actualLeftWheelPulses/referenceLeftWheelPulses)<0.5)
           {
             if(leftStallCount!=0xFFFF)
               leftStallCount++;
           }
-          else
+          else if (abs(referenceLeftWheelPulses)<=0.5 || abs(actualLeftWheelPulses/referenceLeftWheelPulses)>=0.5)
           {
-            if(leftStallCount>2)
-              leftStallCount-=2;
-            else
-              leftStallCount=0;
+            leftStallCount=0;
+            //leftStallDetected=false;
+            //if(leftStallCount>2)
+            //  leftStallCount-=2;
+            //else
+            //  leftStallCount=0;
           }
           //if((abs(referenceRightWheelPulses)>30)&&(actualRightWheelPulses==0))
-          if(abs(referenceRightWheelPulses)>0.5 && abs(actualRightWheelPulses/referenceRightWheelPulses)<0.7)
+          if(abs(referenceRightWheelPulses)>0.5 && abs(actualRightWheelPulses/referenceRightWheelPulses)<0.5)
           {
             if(rightStallCount!=0xFFFF)
               rightStallCount++;
           }
-          else
+          else if (abs(referenceRightWheelPulses)<=0.5 || abs(actualRightWheelPulses/referenceRightWheelPulses)>=0.5)
           {
-            if(rightStallCount>2)
-              rightStallCount-=2;
-            else
-              rightStallCount=0;
+            rightStallCount=0;
+            //rightStallDetected=false;
+            //if(rightStallCount>2)
+            //  rightStallCount-=2;
+            //else
+            //  rightStallCount=0;
           }
+          if(leftStallCount>minStallDetectionTime/sampleTime)
+            leftStallDetected=true;
+          else if(leftStallCount<=minStallDetectionTime/sampleTime)
+            leftStallDetected=false;
+          //else if(leftStallDetected&&leftStallCount==0)
+          //  leftStallDetected=false;
+          if(rightStallCount>minStallDetectionTime/sampleTime)
+            rightStallDetected=true;
+          else if(rightStallCount>minStallDetectionTime/sampleTime)
+            rightStallDetected=false;
+          //else if(rightStallDetected&&rightStallCount==0)
+          //  rightStallDetected=false;
           /*
           Serial.print(referenceLeftWheelPulses,DEC);
           Serial.print("    ");
@@ -364,14 +380,6 @@ namespace arduBot
           Serial.print("    ");
           Serial.println(leftStallCount,DEC);
           */
-          if(leftStallCount>minStallDetectionTime/sampleTime)
-            leftStallDetected=true;
-          //else if(leftStallDetected&&leftStallCount==0)
-          //  leftStallDetected=false;
-          if(rightStallCount>minStallDetectionTime/sampleTime)
-            rightStallDetected=true;
-          //else if(rightStallDetected&&rightStallCount==0)
-          //  rightStallDetected=false;
         };
         
         bool doControlLoop()
@@ -393,7 +401,7 @@ namespace arduBot
           doPIDControl();
           checkMotorsLimits();
           updateMotorsPwm();
-          stallDetection();
+          //stallDetection();
           return (leftStallDetected || rightStallDetected);
           /*
           if(stall<0)
@@ -407,6 +415,7 @@ namespace arduBot
           desiredLinearSpeed=0;
           desiredAngularSpeed=0;
           linearPlusAngular2LeftPlusRight();
+          //stallDetection();
           
           integralLeftError=0;
           leftError=0;

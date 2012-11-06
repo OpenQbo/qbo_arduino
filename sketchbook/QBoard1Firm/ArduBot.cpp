@@ -40,9 +40,9 @@
 #include <avr/interrupt.h>
 
 //#define WHEEL_STOP_ALERT
-#define ROBOT_FALL_ALERT
-#define ROBOT_CRASH_ALERT
-#define ROBOT_STALL_ALERT
+//#define ROBOT_FALL_ALERT
+//#define ROBOT_CRASH_ALERT
+//#define ROBOT_STALL_ALERT
 
 using namespace arduBot;
 //---------Definicion de las variables static----------------------//
@@ -306,10 +306,6 @@ void ArduBot::begin(double spinLoopPeriodS, double kp, double ki, double kd)
   gyroState=!I2c.returnStatusWire;
   accelerometer.setup();
   accelerometerState=!I2c.returnStatusWire;
-  //Ampli a volumen moderado para que tarde mas en romperse
-  I2c.beginTransmission(B1001011);
-  I2c.send(37);                             // Send Command Byte
-  I2c.endTransmission();
   
   byte stat=0;
   byte value=0;
@@ -325,6 +321,22 @@ void ArduBot::begin(double spinLoopPeriodS, double kp, double ki, double kd)
   lcd.setCursor(2,12);
   lcd.print("Stat: ");
   lcd.print(stat,DEC);
+  stat>>=1;
+  stat&=0x01;
+  if(stat==1)
+  {
+    //Ampli a volumen moderado para que tarde mas en romperse
+    I2c.beginTransmission(B1001011);
+    I2c.send(37);                             // Send Command Byte
+    I2c.endTransmission();
+  }
+  else
+  {
+    //Ampli a mute por estar el PC apagado
+    I2c.beginTransmission(B1001011);
+    I2c.send(0);                             // Send Command Byte
+    I2c.endTransmission();
+  }
     
   oldPort=PINJ & ((1<<MOTOR_1_HALL_A_PIN) | (1<<MOTOR_1_HALL_B_PIN) | (1<<MOTOR_2_HALL_A_PIN) | (1<<MOTOR_2_HALL_B_PIN));
   leftMotorHallA=((oldPort&(1<<MOTOR_1_HALL_A_PIN))!=0);
@@ -586,6 +598,7 @@ long batteryTime=0;
 //char filaTestLCD[][80]={"  Thecorpora Robot  \n  =====Testing====","Esto es una prueba  del funcionamiento   del LCD\n- - - - - - - - - - "};
 //long pulsos_izq=0;
 //long pulsos_der=0;
+byte accelerometer_fall_count = 0;
 void ArduBot::spinOnce(){
   //Calculo de la posicion de l robot y procesamiento del PID
   long now=millis();
@@ -620,24 +633,33 @@ void ArduBot::spinOnce(){
     #ifdef ROBOT_FALL_ALERT
     if(accelerometerZ<43)
     {
-      if(!ArduBot::robotFallFlag)
+      accelerometer_fall_count++;
+      if(accelerometer_fall_count>50)
       {
-        //lcd.clear();
-        //lcd.command(13);
-        lcd.setCursor(3,0);
-        lcd.print("                    ");
-        lcd.setCursor(3,0);
-        lcd.print("Fall");
+        if(!ArduBot::robotFallFlag)
+        {
+          //lcd.clear();
+          //lcd.command(13);
+          lcd.setCursor(3,0);
+          lcd.print("                    ");
+          lcd.setCursor(3,0);
+          lcd.print("Fall");
+        }
+        ArduBot::robotFallFlag=true;
       }
-      ArduBot::robotFallFlag=true;
     }
     else if((ArduBot::robotFallFlag==true)&&(accelerometerZ>48))
     {
+      accelerometer_fall_count=0;
       ArduBot::robotFallFlag=false;
       lcd.setCursor(3,0);
       lcd.print("                    ");
       lcd.setCursor(3,0);
       lcd.print("Ready");
+    }
+    else
+    {
+      accelerometer_fall_count=0;
     }
     #endif
   }
@@ -663,6 +685,22 @@ void ArduBot::spinOnce(){
     lcd.setCursor(2,12);
     lcd.print("Stat: ");
     lcd.print(stat,DEC);
+    stat>>=1;
+    stat&=0x01;
+    if(stat==1)
+    {
+      //Ampli a volumen moderado para que tarde mas en romperse
+      I2c.beginTransmission(B1001011);
+      I2c.send(37);                             // Send Command Byte
+      I2c.endTransmission();
+    }
+    else
+    {
+      //Ampli a mute por estar el PC apagado
+      I2c.beginTransmission(B1001011);
+      I2c.send(0);                             // Send Command Byte
+      I2c.endTransmission();
+    }
   }
   
   //Test del LCD

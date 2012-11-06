@@ -366,10 +366,14 @@ void SerialProtocol::processCommands()
           if(command_.nInputData>20/*49*/)
             command_.nInputData=20;//49;
           uint8_t line=command_.inputData[0];
-          if(line!='1')
-            line=0;
-          else
+          if(line=='1')
             line=1;
+          else if(line=='2')
+            line=2;
+          else if(line=='3')
+            line=3;
+          else
+            line=0;
           robot->lcd.setCursor(line,0);
           robot->lcd.print("                    ");
           robot->lcd.setCursor(line,0);
