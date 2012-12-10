@@ -292,6 +292,9 @@ void SerialProtocol::processCommands()
         {
           //sin valor de retorno
           command_.nOutputData=0;
+          robot->setSpeeds(0.0, 0.0);
+          robot->par_motores.leftStallCount=0;
+          robot->par_motores.rightStallCount=0;
           robot->par_motores.leftStallDetected=false;
           robot->par_motores.rightStallDetected=false;
         }
@@ -363,10 +366,14 @@ void SerialProtocol::processCommands()
           if(command_.nInputData>20/*49*/)
             command_.nInputData=20;//49;
           uint8_t line=command_.inputData[0];
-          if(line!='1')
-            line=0;
-          else
+          if(line=='1')
             line=1;
+          else if(line=='2')
+            line=2;
+          else if(line=='3')
+            line=3;
+          else
+            line=0;
           robot->lcd.setCursor(line,0);
           robot->lcd.print("                    ");
           robot->lcd.setCursor(line,0);
@@ -548,8 +555,12 @@ void SerialProtocol::processCommands()
         else
         {
           //reservamos para 1 valor de retorno
-          command_.nOutputData=1;
-          command_.outputData[0]=byte(robot->getBatteryLevel()*10.0);
+          command_.nOutputData=2;
+          byte value=0;
+          byte stat=0;
+          robot->getBatteryLevel(&value, &stat);
+          command_.outputData[0]=value;
+          command_.outputData[1]=stat;
         }
         //sin datos de entrada
         break;

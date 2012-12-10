@@ -490,9 +490,8 @@ void ArduBot::updateMouth()
   }
   shiftRegisterWrite(noseColor);
 }
-void ArduBot::setImage(byte b1, byte b2, byte b3, byte color)
+void ArduBot::setImage(byte b1, byte b2, byte b3)
 {
-  noseColor=color|B111;
   long data=b3&B00011111;
   data<<=8;
   data|=b2;
