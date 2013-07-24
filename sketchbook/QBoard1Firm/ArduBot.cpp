@@ -311,16 +311,35 @@ void ArduBot::begin(double spinLoopPeriodS, double kp, double ki, double kd)
   byte value=0;
   energyState=!I2c.returnStatusWire;
   getBatteryLevel(&value,&stat);
-  lcd.setCursor(2,0);
-  lcd.print("                    ");
-  lcd.setCursor(2,0);
-  lcd.print("Bat: ");
   float batV=((float)value/10);
+  byte qbpower=bitRead(stat,0);
+  byte pcpower=bitRead(stat,1);
+  byte expower=bitRead(stat,2);
+  byte batstat=0;
+  bitWrite(batstat, 0, bitRead(stat,3) );
+  bitWrite(batstat, 1, bitRead(stat,4) );
+  bitWrite(batstat, 2, bitRead(stat,5) );
+  //lcd.setCursor(2,0);
+  //lcd.print("                    ");
+  lcd.setCursor(2,0);
+  if      (batstat == 0){ lcd.print("Full Discharge "); }
+  else if (batstat == 1){ lcd.print("Charging CC    "); }
+  else if (batstat == 2){ lcd.print("Charging CV    "); }
+  else if (batstat == 3){ lcd.print("Fully Charged  "); }
+  else if (batstat == 4){ lcd.print("Battery Power  "); }
+  lcd.setCursor(2,15);
   lcd.print(batV,1);
   lcd.print("V");
-  lcd.setCursor(2,12);
-  lcd.print("Stat: ");
-  lcd.print(stat,DEC);
+  //lcd.setCursor(3,0);
+  //lcd.print("                    ");
+  lcd.setCursor(3,0);
+  lcd.print("PC: ");
+  lcd.print(pcpower,DEC);
+  lcd.print("  Ext: ");
+  lcd.print(expower,DEC);
+  lcd.print("  QB: ");
+  lcd.print(qbpower,DEC);
+  
   stat>>=1;
   stat&=0x01;
   if(stat==1)
@@ -675,16 +694,35 @@ void ArduBot::spinOnce(){
     byte value=I2c.receive();
     */
     getBatteryLevel(&value, &stat);
-    lcd.setCursor(2,0);
-    lcd.print("                    ");
-    lcd.setCursor(2,0);
-    lcd.print("Bat: ");
     float batV=((float)value/10);
+    byte qbpower=bitRead(stat,0);
+    byte pcpower=bitRead(stat,1);
+    byte expower=bitRead(stat,2);
+    byte batstat=0;
+    bitWrite(batstat, 0, bitRead(stat,3) );
+    bitWrite(batstat, 1, bitRead(stat,4) );
+    bitWrite(batstat, 2, bitRead(stat,5) );
+    //lcd.setCursor(2,0);
+    //lcd.print("                    ");
+    lcd.setCursor(2,0);
+    if      (batstat == 0){ lcd.print("Full Discharge "); }
+    else if (batstat == 1){ lcd.print("Charging CC    "); }
+    else if (batstat == 2){ lcd.print("Charging CV    "); }
+    else if (batstat == 3){ lcd.print("Fully Charged  "); }
+    else if (batstat == 4){ lcd.print("Battery Power  "); }
+    lcd.setCursor(2,15);
     lcd.print(batV,1);
     lcd.print("V");
-    lcd.setCursor(2,12);
-    lcd.print("Stat: ");
-    lcd.print(stat,DEC);
+    //lcd.setCursor(3,0);
+    //lcd.print("                    ");
+    lcd.setCursor(3,0);
+    lcd.print("PC: ");
+    lcd.print(pcpower,DEC);
+    lcd.print("  Ext: ");
+    lcd.print(expower,DEC);
+    lcd.print("  QB: ");
+    lcd.print(qbpower,DEC);
+  
     stat>>=1;
     stat&=0x01;
     if(stat==1)
