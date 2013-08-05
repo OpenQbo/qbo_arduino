@@ -371,12 +371,12 @@ void ArduBot::begin(double spinLoopPeriodS, double kp, double ki, double kd)
   lcd.load_custom_character(5, batChar5);
   lcd.load_custom_character(6, batChar6);
 //-------Test Custom Chars
-
+/*
   lcd.setCursor(1,0);  
-  for(int i=128; i<133 ; i++){
+  for(int i=128; i<135 ; i++){
       lcd.write(i);
   }
-
+*/
 //---------------------------------------------//
   testSrfs();
   
