@@ -1,3 +1,5 @@
+#include <LCDi2cR.h>
+
 /*********************************************************************
  *
  * Software License Agreement (BSD License)
@@ -290,6 +292,91 @@ void ArduBot::begin(double spinLoopPeriodS, double kp, double ki, double kd)
   lcdState=!I2c.returnStatusWire;
   lcd.clear();
   lcd.print("Waiting for PC");
+//-------Custom Battery Characters For LCD---------//  
+  uint8_t batChar0[8] = {
+                    B01110,
+                    B11011,
+                    B10001,
+                    B10001,
+                    B10001,
+                    B10001,
+                    B10001,
+                    B11111,
+                    };
+  uint8_t batChar1[8] = {
+                    B01110,
+                    B11011,
+                    B10001,
+                    B10001,
+                    B10001,
+                    B10001,
+                    B11111,
+                    B11111,
+                    };
+  uint8_t batChar2[8] = {
+                    B01110,
+                    B11011,
+                    B10001,
+                    B10001,
+                    B10001,
+                    B11111,
+                    B11111,
+                    B11111,
+                    };
+  uint8_t batChar3[8] = {
+                    B01110,
+                    B11011,
+                    B10001,
+                    B10001,
+                    B11111,
+                    B11111,
+                    B11111,
+                    B11111,
+                    };
+  uint8_t batChar4[8] = {
+                    B01110,
+                    B11011,
+                    B10001,
+                    B11111,
+                    B11111,
+                    B11111,
+                    B11111,
+                    B11111,
+                    };
+  uint8_t batChar5[8] = {
+                    B01110,
+                    B11011,
+                    B11111,
+                    B11111,
+                    B11111,
+                    B11111,
+                    B11111,
+                    B11111,
+                    };
+  uint8_t batChar6[8] = {
+                    B01110,
+                    B11111,
+                    B11111,
+                    B11111,
+                    B11111,
+                    B11111,
+                    B11111,
+                    B11111,
+                    };
+  lcd.load_custom_character(0, batChar0);
+  lcd.load_custom_character(1, batChar1);
+  lcd.load_custom_character(2, batChar2);
+  lcd.load_custom_character(3, batChar3);
+  lcd.load_custom_character(4, batChar4);
+  lcd.load_custom_character(5, batChar5);
+  lcd.load_custom_character(6, batChar6);
+//-------Test Custom Chars
+
+  lcd.setCursor(1,0);  
+  for(int i=128; i<133 ; i++){
+      lcd.write(i);
+  }
+
 //---------------------------------------------//
   testSrfs();
   
@@ -323,8 +410,8 @@ void ArduBot::begin(double spinLoopPeriodS, double kp, double ki, double kd)
   //lcd.print("                    ");
   lcd.setCursor(2,0);
   if      (batstat == 0){ lcd.print("Full Discharge "); }
-  else if (batstat == 1){ lcd.print("Charging CC    "); }
-  else if (batstat == 2){ lcd.print("Charging CV    "); }
+  else if (batstat == 1){ lcd.print("Charging CC "); lcd.write(128); lcd.print("  "); }
+  else if (batstat == 2){ lcd.print("Charging CV "); lcd.write(128); lcd.print("  "); }
   else if (batstat == 3){ lcd.print("Fully Charged  "); }
   else if (batstat == 4){ lcd.print("Battery Power  "); }
   lcd.setCursor(2,15);
@@ -612,6 +699,9 @@ byte index_back=0;
 //long gyroTime=0;
 long accelerometerTime=0;
 long batteryTime=0;
+long batteryTimeCharge=0;
+byte batteryChargeChar=128;
+boolean batteryCharging=false;
 //int ampliV=0;
 //boolean filaLCD=false;
 //char filaTestLCD[][80]={"  Thecorpora Robot  \n  =====Testing====","Esto es una prueba  del funcionamiento   del LCD\n- - - - - - - - - - "};
@@ -683,6 +773,17 @@ void ArduBot::spinOnce(){
     #endif
   }
   
+  if(now-batteryTimeCharge>250)
+  {
+    batteryTimeCharge+=250;
+    if(batteryCharging){
+      lcd.setCursor(2,12);
+      lcd.write(batteryChargeChar);
+      batteryChargeChar++;
+      if (batteryChargeChar>135){ batteryChargeChar=128; }
+    }
+  }
+  
   if(now-batteryTime>10000)
   {
     batteryTime+=10000;
@@ -705,11 +806,16 @@ void ArduBot::spinOnce(){
     //lcd.setCursor(2,0);
     //lcd.print("                    ");
     lcd.setCursor(2,0);
-    if      (batstat == 0){ lcd.print("Full Discharge "); }
-    else if (batstat == 1){ lcd.print("Charging CC    "); }
-    else if (batstat == 2){ lcd.print("Charging CV    "); }
-    else if (batstat == 3){ lcd.print("Fully Charged  "); }
-    else if (batstat == 4){ lcd.print("Battery Power  "); }
+    if      (batstat == 0){ lcd.print("Full Discharge "); batteryCharging=false; }
+    else if (batstat == 1){ lcd.print("Charging CC ");    batteryCharging=true; }
+    else if (batstat == 2){ lcd.print("Charging CV ");    batteryCharging=true; }
+    else if (batstat == 3){ lcd.print("Fully Charged  "); batteryCharging=false; }
+    else if (batstat == 4){ lcd.print("Battery Power  "); batteryCharging=false; }
+    if(batteryCharging){
+      lcd.setCursor(2,12);
+      lcd.write(batteryChargeChar);
+      lcd.print("  ");
+    }
     lcd.setCursor(2,15);
     lcd.print(batV,1);
     lcd.print("V");
